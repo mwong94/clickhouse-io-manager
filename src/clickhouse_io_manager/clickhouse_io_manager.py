@@ -2,18 +2,16 @@
 Dagster IO manager for ClickHouse database.
 """
 
-import os
 import pandas as pd
-from datetime import UTC
-from typing import Any, Dict, Mapping, Optional, Sequence, Union
+from datetime import datetime, UTC, timedelta, time
+from typing import Any, Dict, Optional, Union
 from dagster import (
     ConfigurableIOManager,
     InputContext,
     OutputContext,
     ConfigurableResource,
     MetadataValue,
-    io_manager,
-    TimeWindowPartitionsDefinition, MultiPartitionsDefinition
+    TimeWindowPartitionsDefinition
 )
 from clickhouse_driver import Client
 
@@ -89,21 +87,18 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         # Handle partitioned asset where data should be overwritten
         if context.has_asset_partitions:
             asset_partitions_def = context.asset_partitions_def
+            asset_partition_key = context.asset_partition_key
             parts_def = context.asset_partitions_def
-            if isinstance(parts_def, TimeWindowPartitionsDefinition):
-                context.log.debug(parts_def.timezone)
-            elif isinstance(parts_def, MultiPartitionsDefinition):
-                for sub_def in parts_def:
-                    tz = sub_def.timezone
-                    context.log.debug(tz)
-                    break
+            if isinstance(parts_def, TimeWindowPartitionsDefinition) and str(asset_partitions_def).startswith("Daily"):
+                context.log.debug("Asset is daily partitioned, truncating the corresponding day")
+                tz = parts_def.timezone
+                context.log.debug(f"{asset_partition_key}; {tz}")
 
-            context.log.debug(context.config)
-            if str(asset_partitions_def).startswith('Daily'):
-                context.log.debug('Asset is daily partitioned, truncating the corresponding day')
-                context.log.debug(context.asset_partition_key)
+                key_date = pd.to_datetime(asset_partition_key, format='%Y-%m-%d')
+                part_start = datetime.combine(key_date, time())
+                part_end = part_start + timedelta(days=1)
             else:
-                context.log.debug('Asset is partitioned, but not daily. Inserting data without truncating')
+                context.log.debug("Asset is partitioned, but not daily. Inserting data without truncating")
 
 
         # Insert data into ClickHouse
