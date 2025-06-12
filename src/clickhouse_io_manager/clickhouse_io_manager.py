@@ -4,6 +4,7 @@ Dagster IO manager for ClickHouse database.
 
 import os
 import pandas as pd
+from datetime import UTC
 from typing import Any, Dict, Mapping, Optional, Sequence, Union
 from dagster import (
     ConfigurableIOManager,
@@ -78,11 +79,16 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
 
         # Add loaded_at timestamp if not present
         if "loaded_at" not in obj.columns:
-            obj["loaded_at"] = pd.Timestamp.now()
+            obj["loaded_at"] = pd.Timestamp.now(UTC).timestamp()
 
         # Convert DataFrame to list of tuples for insertion
         data = [tuple(x) for x in obj.to_records(index=False)]
         column_names = list(obj.columns)
+
+        # Handle partitioned asset where data should be overwritten
+        if context.has_asset_partitions:
+            context.log.debug(context.asset_partitions_def)
+            # key = context.asset_partition_key
 
         # Insert data into ClickHouse
         try:

@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clickhouse-io-manager"
-version = "0.1.5"
+version = "0.1.6"
 description = "Dagster IOManager for ClickHouse"
 requires-python = ">=3.9"
 
 dependencies = [
   "dagster>=1.7.0",
   "clickhouse-driver>=0.2.9",
+  "pandas>=2.3.0",
 ]
 
 [project.urls]
