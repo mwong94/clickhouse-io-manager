@@ -13,6 +13,7 @@ from dagster import (
     ConfigurableResource,
     MetadataValue,
     io_manager,
+    TimeWindowPartitionsDefinition, MultiPartitionsDefinition
 )
 from clickhouse_driver import Client
 
@@ -87,8 +88,17 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
 
         # Handle partitioned asset where data should be overwritten
         if context.has_asset_partitions:
-            context.log.debug(context.config)
             asset_partitions_def = context.asset_partitions_def
+            parts_def = context.asset_partitions_def
+            if isinstance(parts_def, TimeWindowPartitionsDefinition):
+                context.log.debug(parts_def.timezone)
+            elif isinstance(parts_def, MultiPartitionsDefinition):
+                for sub_def in parts_def:
+                    tz = sub_def.timezone
+                    context.log.debug(tz)
+                    break
+
+            context.log.debug(context.config)
             if str(asset_partitions_def).startswith('Daily'):
                 context.log.debug('Asset is daily partitioned, truncating the corresponding day')
                 context.log.debug(context.asset_partition_key)
