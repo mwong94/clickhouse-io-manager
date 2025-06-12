@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 
 dependencies = [
   "dagster>=1.7.0",
-  "clickhouse-driver>=0.3.2",
+  "clickhouse-driver>=0.2.9",
 ]
 
 [project.urls]
