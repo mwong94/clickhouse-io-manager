@@ -86,6 +86,7 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         column_names = list(obj.columns)
 
         # Handle partitioned asset where data should be overwritten
+        context.log.debug('checking partition status')
         if context.has_asset_partitions:
             context.log.debug(context.asset_partitions_def)
             # key = context.asset_partition_key
