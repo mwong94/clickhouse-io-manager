@@ -4,6 +4,7 @@ Dagster io manager to integrate a ClickHouse db with Pandas. Thanks ChatGPT!
 ## Usage
 ```python
 from clickhouse_io_manager import ClickHousePandasIOManager, ClickHouseConfig
+import os
 
 @io_manager(config_schema=ClickHouseConfig.to_config_schema())
 def clickhouse_pandas_io_manager(init_context):
