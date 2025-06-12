@@ -1,2 +1,2 @@
 # `clickhouse-pandas-io-manager`
-Dagster io manager to integrate a ClickHouse db with pandas
+Dagster io manager to integrate a ClickHouse db with Pandas. Thanks ChatGPT!
