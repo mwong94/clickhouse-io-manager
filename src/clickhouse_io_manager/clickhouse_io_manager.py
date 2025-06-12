@@ -85,11 +85,6 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         data = [tuple(x) for x in obj.to_records(index=False)]
         column_names = list(obj.columns)
 
-        # Handle partitioned asset where data should be overwritten
-        if context.has_asset_partitions:
-            context.log.debug(context.asset_partitions_def)
-            # key = context.asset_partition_key
-
         # Insert data into ClickHouse
         try:
             client.execute(
