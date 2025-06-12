@@ -87,7 +87,9 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
 
         # Handle partitioned asset where data should be overwritten
         if context.has_asset_partitions:
-            if str(context.asset_partitions_def).startswith('Daily'):
+            context.log.debug(context.config)
+            asset_partitions_def = context.asset_partitions_def
+            if str(asset_partitions_def).startswith('Daily'):
                 context.log.debug('Asset is daily partitioned, truncating the corresponding day')
                 context.log.debug(context.asset_partition_key)
             else:
