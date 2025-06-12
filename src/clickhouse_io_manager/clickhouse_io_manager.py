@@ -84,28 +84,6 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         data = [tuple(x) for x in obj.to_records(index=False)]
         column_names = list(obj.columns)
 
-        # Check if the asset is partitioned
-        partition_expr = context.metadata.get("partition_expr") if context.metadata else None
-        partition_value = context.asset_partition_key if hasattr(context, "has_asset_partitions") and context.has_asset_partitions else None
-
-        # If partitioned, delete previous data from that partition before inserting
-        if partition_expr and partition_value:
-            try:
-                delete_query = f"DELETE FROM {table_name}"
-
-                # For date-based partitioning
-                if "date" in partition_expr.lower() or "time" in partition_expr.lower():
-                    delete_condition = f" WHERE {partition_expr} >= toDate('{partition_value}') AND {partition_expr} < toDate('{partition_value}') + INTERVAL 1 DAY"
-                else:
-                    # For other types of partitioning
-                    delete_condition = f" WHERE {partition_expr} = '{partition_value}'"
-
-                client.execute(delete_query + delete_condition)
-                context.log.info(f"Deleted previous data from partition {partition_value} in {table_name}")
-            except Exception as e:
-                context.log.error(f"Error deleting previous data from partition {partition_value} in {table_name}: {str(e)}")
-                # Continue with insertion even if deletion fails
-
         # Insert data into ClickHouse
         try:
             client.execute(
@@ -166,3 +144,4 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         except Exception as e:
             context.log.error(f"Error loading data from {table_name}: {str(e)}")
             raise
+
