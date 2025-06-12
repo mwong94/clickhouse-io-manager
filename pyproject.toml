@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clickhouse-io-manager"
+version = "0.1.0"
+description = "Dagster IOManager for ClickHouse"
+requires-python = ">=3.9"
+
+dependencies = [
+  "dagster>=1.7.0",
+  "clickhouse-driver>=0.3.2",
+]
+
+[project.urls]
+"Source" = "https://github.com/mwong94/clickhouse-io-manager"
