@@ -86,10 +86,13 @@ class ClickHousePandasIOManager(ConfigurableIOManager):
         column_names = list(obj.columns)
 
         # Handle partitioned asset where data should be overwritten
-        context.log.debug('checking partition status')
         if context.has_asset_partitions:
-            context.log.debug(context.asset_partitions_def)
-            # key = context.asset_partition_key
+            if str(context.asset_partitions_def).startswith('Daily'):
+                context.log.debug('Asset is daily partitioned, truncating the corresponding day')
+                context.log.debug(context.asset_partition_key)
+            else:
+                context.log.debug('Asset is partitioned, but not daily. Inserting data without truncating')
+
 
         # Insert data into ClickHouse
         try:
